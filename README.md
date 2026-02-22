@@ -1,73 +1,105 @@
-# Welcome to your Lovable project
+# AI Mock Interviewer
 
-## Project info
+AI Mock Interviewer is a modern web application that allows recruiters and candidates to generate, schedule, and conduct AI-driven mock interviews. Built with React, Tailwind CSS, and Supabase for authentication and backend, it leverages AI to dynamically generate interview questions tailored to the job position and candidate experience.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+---
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- **AI-Powered Interview Generation**  
+  Generate interview questions dynamically based on job description, position, and selected question types (Technical, Behavioral, Problem Solving, Situational).
 
-**Use Lovable**
+- **Customizable Interview Types & Duration**  
+  Select multiple question types and specify interview duration to automatically calculate the number of questions.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+- **Dashboard & Navigation**  
+  Intuitive dashboard to create, track, and manage interviews. Quick access to scheduled interviews, billing, and settings.
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Responsive UI**  
+  Sleek, dark-themed design built with Tailwind CSS that adapts to mobile and desktop.
 
-**Use your preferred IDE**
+- **User Authentication**  
+  Secure login and session management powered by Supabase.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **Question Management**  
+  Filter questions by type, view full questions, and copy/send links to candidates.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## Tech Stack
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- **Frontend:** React, Tailwind CSS, Framer Motion (animations), Lucide Icons  
+- **Backend / Authentication:** Supabase (Postgres + Auth)  
+- **AI Integration:** Groq API with LLaMA 3 for dynamic question generation  
+- **Routing:** React Router v6  
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Installation
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/<your-username>/ai-mock-interviewer.git
+   cd ai-mock-interviewer
+
+Install dependencies
+
+npm install
+
+Set up environment variables
+Create a .env file in the root directory:
+
+VITE_GROQ_API_KEY=your_groq_api_key
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+Run the development server
+
 npm run dev
-```
 
-**Edit a file directly in GitHub**
+Open in browser
+Navigate to http://localhost:5173
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Project Structure
+src/
+├── components/
+│   ├── ui/           # Reusable UI components (Button, Input, Select, etc.)
+│   ├── Navbar.tsx
+│   └── Sidebar.tsx
+├── pages/
+│   ├── Dashboard.tsx
+│   ├── CreateInterview.tsx
+│   └── InterviewQuestions.tsx
+├── integrations/
+│   └── supabase/
+├── App.tsx
+└── main.tsx
+Usage
 
-**Use GitHub Codespaces**
+Sign Up / Login using your email.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Dashboard: View existing interviews or create new ones.
 
-## What technologies are used for this project?
+Create Interview:
 
-This project is built with:
+Enter job position and description
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Select interview duration and question types
 
-## How can I deploy this project?
+Generate AI-powered interview questions
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+View Questions: Filter by type, expand to see full questions, copy or send links to candidates.
 
-## Can I connect a custom domain to my Lovable project?
+Contributing
 
-Yes, you can!
+Contributions are welcome!
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Fork the repository
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Create a new branch (git checkout -b feature/your-feature)
+
+Commit your changes (git commit -m 'Add feature')
+
+Push to the branch (git push origin feature/your-feature)
+
+Open a Pull Request
