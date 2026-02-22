@@ -147,7 +147,15 @@ No extra text before or after JSON.`; // Groq API prompt here
                 )
                 .map((q: any) => ({ question: cleanQuestionText(q.question), type: q.type }));
 
-            navigate("/interview-questions", { state: { questions: parsed } });
+            navigate("/interview-questions", {
+                state: {
+                    questions: parsed,
+                    jobPosition,
+                    jobDescription,
+                    duration,
+                    selectedTypes,
+                },
+            });
         } catch (error: any) {
             console.error("Groq API Error:", error.response?.data || error.message);
             alert("Failed to generate interview questions.");

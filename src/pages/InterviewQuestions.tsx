@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import type { Database } from "@/integrations/supabase/types";
 
 interface Question {
     question: string;
@@ -15,20 +18,89 @@ const badgeColors = {
     Situational: "bg-orange-700 text-white",
 };
 
-const MAX_LENGTH = 160; // truncate length
+const MAX_LENGTH = 160;
 
 const InterviewQuestions = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { questions } = location.state as { questions: Question[] };
+
+    const {
+        questions,
+        jobPosition,
+        jobDescription,
+        duration,
+        selectedTypes,
+    } = location.state as {
+        questions: Question[];
+        jobPosition: string;
+        jobDescription: string;
+        duration: string;
+        selectedTypes: string[];
+    };
 
     const [filter, setFilter] = useState<string>("All");
     const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+    const [saving, setSaving] = useState(false);
 
     const filteredQuestions =
         filter === "All"
             ? questions
             : questions.filter((q) => q.type === filter);
+
+    const handleConfirm = async () => {
+        try {
+            setSaving(true);
+
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (!user?.email) {
+                alert("User not authenticated");
+                setSaving(false);
+                return;
+            }
+
+            const interviewId = crypto.randomUUID();
+
+            // Insert interview into Supabase
+            const { data, error } = await supabase
+                .from("Interviews")
+                .insert([
+                    {
+                        jobPosition,
+                        jobDescription,
+                        duration,
+                        type: selectedTypes.join(", "),
+                        questionList: questions as unknown as Database['public']['Tables']['Interviews']['Insert']['questionList'],
+                        userEmail: user.email,
+                        interview_id: interviewId,
+                    },
+                ])
+                .select();
+
+            if (error) {
+                console.error("Insert error:", error);
+                alert("Failed to save interview.");
+                return;
+            }
+
+            console.log("Inserted row:", data);
+
+            // ✅ Navigate to GenerateInterviewLink component
+            navigate("/generate-link", {
+                state: {
+                    interviewId,
+                    jobPosition,
+                    duration,
+                },
+            });
+
+        } catch (err: any) {
+            console.error("Unexpected error:", err);
+            alert("Something went wrong.");
+        } finally {
+            setSaving(false);
+        }
+    };
 
     return (
         <div className="flex flex-col min-h-screen bg-[#0d1117] p-6 md:p-12">
@@ -42,7 +114,6 @@ const InterviewQuestions = () => {
                     Back
                 </button>
 
-                {/* Logo + Header Text */}
                 <div className="flex items-center gap-3">
                     <img
                         src="/logo.png"
@@ -73,7 +144,6 @@ const InterviewQuestions = () => {
                 )}
             </div>
 
-            {/* Progress */}
             <div className="mb-6 text-sm text-purple-300">
                 Showing {filteredQuestions.length} of {questions.length} questions
             </div>
@@ -112,6 +182,17 @@ const InterviewQuestions = () => {
                         </motion.div>
                     );
                 })}
+            </div>
+
+            {/* Confirm Button */}
+            <div className="mt-10 flex justify-center">
+                <Button
+                    onClick={handleConfirm}
+                    disabled={saving}
+                    className="bg-purple-700 hover:bg-purple-800 text-white px-8 py-2"
+                >
+                    {saving ? "Saving..." : "Save and Generate Interview Link"}
+                </Button>
             </div>
         </div>
     );
