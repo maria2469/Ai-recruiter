@@ -41,9 +41,18 @@ const InterviewQuestions = () => {
                     <ArrowLeft className="h-5 w-5" />
                     Back
                 </button>
-                <h1 className="text-3xl font-bold text-white">
-                    Generated Interview Questions
-                </h1>
+
+                {/* Logo + Header Text */}
+                <div className="flex items-center gap-3">
+                    <img
+                        src="/logo.png"
+                        alt="AI Mock Interviewer Logo"
+                        className="h-10 w-10 object-contain"
+                    />
+                    <h1 className="text-3xl font-bold text-white">
+                        Generated Interview Questions
+                    </h1>
+                </div>
             </div>
 
             {/* Filter Buttons */}

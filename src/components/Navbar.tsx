@@ -1,4 +1,3 @@
-import { Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -9,8 +8,12 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
       <div className="container mx-auto flex h-16 items-center justify-between px-6">
         {/* Logo */}
-        <div className="flex items-center gap-2">
-          <Bot className="h-7 w-7 text-primary" />
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
+          <img
+            src="/logo.png"
+            alt="AI Mock Interviewer Logo"
+            className="h-8 w-8 object-contain"
+          />
           <span className="text-xl font-bold text-foreground">
             AI <span className="font-normal">Mock Interviewer</span>
           </span>
@@ -41,7 +44,7 @@ const Navbar = () => {
         {/* Dashboard Button */}
         <Button
           size="sm"
-          onClick={() => navigate("/auth")} // Use client-side navigation
+          onClick={() => navigate("/auth")} // client-side navigation
         >
           Dashboard
         </Button>

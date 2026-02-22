@@ -8,6 +8,8 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import CreateInterview from "./pages/CreateInterview";
+import InterviewQuestions from "./pages/InterviewQuestions"; // <-- new screen
 
 const queryClient = new QueryClient();
 
@@ -21,6 +23,9 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/create-interview" element={<CreateInterview />} />
+          <Route path="/interview-questions" element={<InterviewQuestions />} /> {/* new route */}
+
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
