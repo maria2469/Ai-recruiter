@@ -1,3 +1,7 @@
+
+<p align="center">
+  <img src="public/logo.png" alt="AI Mock Interviewer Logo" width="120" />
+</p>
 # AI Mock Interviewer
 
 AI Mock Interviewer is a modern web application that allows recruiters and candidates to generate, schedule, and conduct AI-driven mock interviews. Built with React, Tailwind CSS, and Supabase for authentication and backend, it leverages AI to dynamically generate interview questions tailored to the job position and candidate experience.
