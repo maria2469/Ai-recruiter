@@ -15,7 +15,7 @@ const Footer = () => {
           </span>
         </div>
         <p className="text-sm text-purple-300/60">
-          © 2024 Ai Mock Interviewer. All rights reserved.
+          © 2026 Ai Mock Interviewer. All rights reserved.
         </p>
       </div>
     </footer>
