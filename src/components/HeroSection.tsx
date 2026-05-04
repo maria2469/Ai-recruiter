@@ -1,9 +1,12 @@
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import DashboardPreview from "./DashboardPreview";
 import HeroCanvas from "./HeroCanvas";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+
   return (
     <section
       className="relative min-h-[90vh] flex items-center overflow-hidden"
@@ -15,7 +18,7 @@ const HeroSection = () => {
       {/* Animated Canvas Background */}
       <HeroCanvas />
 
-      {/* Gradient overlay for text readability */}
+      {/* Overlay */}
       <div
         className="absolute inset-0 z-[1]"
         style={{
@@ -26,8 +29,10 @@ const HeroSection = () => {
 
       <div className="container relative z-10 mx-auto px-6">
         <div className="grid items-center gap-12 md:grid-cols-2">
-          {/* Text Column */}
+
+          {/* LEFT SIDE */}
           <div className="animate-fade-in">
+
             {/* Badge */}
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-purple-500/20 bg-purple-500/10 px-4 py-1.5 text-xs font-semibold text-purple-300">
               <span className="relative flex h-2 w-2">
@@ -37,7 +42,7 @@ const HeroSection = () => {
               AI-Powered Interview Assistant
             </div>
 
-            {/* Main Heading */}
+            {/* Heading */}
             <h1 className="text-4xl font-bold leading-[1.1] tracking-tight text-white md:text-5xl lg:text-6xl">
               AI Mock
               <span
@@ -61,12 +66,16 @@ const HeroSection = () => {
 
             {/* Buttons */}
             <div className="mt-8 flex flex-wrap items-center gap-4">
+
+              {/* ✅ FIXED BUTTON */}
               <Button
                 size="lg"
+                onClick={() => navigate("/interview-start")}
                 className="gap-2 rounded-full bg-purple-600 px-7 text-white shadow-lg shadow-purple-600/25 hover:bg-purple-500 hover:shadow-purple-500/30"
               >
                 Start Mock Interview <ArrowRight className="h-4 w-4" />
               </Button>
+
               <Button
                 variant="ghost"
                 size="lg"
@@ -76,7 +85,7 @@ const HeroSection = () => {
               </Button>
             </div>
 
-            {/* Mini stats */}
+            {/* Stats */}
             <div className="mt-10 flex gap-8">
               {[
                 { value: "10k+", label: "Mock Interviews" },
@@ -91,10 +100,10 @@ const HeroSection = () => {
             </div>
           </div>
 
-          {/* Dashboard Column */}
+          {/* RIGHT SIDE */}
           <div className="hidden md:block animate-fade-in" style={{ animationDelay: "0.2s" }}>
             <div className="relative">
-              {/* Glow behind preview */}
+
               <div
                 className="absolute -inset-4 rounded-2xl opacity-30 blur-2xl"
                 style={{
@@ -102,11 +111,13 @@ const HeroSection = () => {
                     "radial-gradient(circle at 50% 50%, hsl(270 94% 50% / 0.4), transparent 70%)",
                 }}
               />
+
               <div className="relative">
                 <DashboardPreview />
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </section>
