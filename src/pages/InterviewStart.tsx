@@ -5,7 +5,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Vapi from "@vapi-ai/web";
-
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Interview {
     jobPosition: string;
@@ -19,7 +18,7 @@ interface LocationState {
     candidateName?: string;
 }
 
-type Phase = "setup" | "briefing" | "connecting" | "live" | "ended";
+type Phase = "setup" | "briefing" | "connecting" | "live";
 
 interface Message {
     role: "assistant" | "user";
@@ -600,6 +599,7 @@ function EndScreen({
     onRestart: () => void;
 }) {
     const navigate = useNavigate();
+
     return (
         <div style={{
             maxWidth: 520,
@@ -718,7 +718,7 @@ const ctaButtonStyle: React.CSSProperties = {
 const InterviewStart = () => {
     const location = useLocation();
     const { interview: initialInterview, candidateName: initialName } = (location.state as LocationState) || {};
-
+    const navigate = useNavigate();
     const [phase, setPhase] = useState<Phase>("setup");
     const [formData, setFormData] = useState<{
         name: string;
@@ -776,7 +776,20 @@ const InterviewStart = () => {
 
                 vapi.on("call-end", () => {
                     if (timerRef.current) clearInterval(timerRef.current);
-                    setPhase("ended");
+
+                    navigate("/interview-feedback", {
+                        state: {
+                            candidateName: data.name,
+                            interview: {
+                                jobPosition: data.position,
+                                jobDescription: data.description,
+                                difficulty: data.difficulty,
+                                duration: data.duration,
+                            },
+                            messages,
+                            duration: data.duration,
+                        },
+                    });
                 });
 
                 vapi.on("speech-start", () => setIsSpeaking(true));
@@ -832,8 +845,23 @@ const InterviewStart = () => {
 
     const handleEnd = useCallback(() => {
         cleanup();
-        setPhase("ended");
-    }, [cleanup]);
+
+        if (formData) {
+            navigate("/interview-feedback", {
+                state: {
+                    candidateName: formData.name,
+                    interview: {
+                        jobPosition: formData.position,
+                        jobDescription: formData.description,
+                        difficulty: formData.difficulty,
+                        duration: formData.duration,
+                    },
+                    messages,
+                    duration: formData.duration,
+                },
+            });
+        }
+    }, [cleanup, formData, messages, navigate]);
 
     const handleRestart = useCallback(() => {
         setFormData(null);
@@ -937,22 +965,6 @@ const InterviewStart = () => {
                     duration={formData.duration}
                     elapsed={elapsed}
                     onEnd={handleEnd}
-                />
-            )}
-
-            {/* Ended phase */}
-            {phase === "ended" && formData && (
-                <EndScreen
-                    candidateName={formData.name}
-                    interview={{
-                        jobPosition: formData.position,
-                        jobDescription: formData.description,
-                        difficulty: formData.difficulty as Interview["difficulty"],
-                        duration: formData.duration,
-                    }}
-                    duration={formData.duration}
-                    messageCount={messages.length}
-                    onRestart={handleRestart}
                 />
             )}
         </div>
