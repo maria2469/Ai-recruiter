@@ -14,7 +14,11 @@ const GenerateInterviewLink = () => {
     };
 
     const [copied, setCopied] = useState(false);
-    const interviewLink = `${window.location.origin}/take-interview/${interviewId}`;
+    const BASE_URL =
+        import.meta.env.PROD
+            ? "https://ai-recruiter-qvt6.vercel.app"
+            : window.location.origin;
+    const interviewLink = `${BASE_URL}/take-interview/${interviewId}`;
 
     const handleCopy = () => {
         navigator.clipboard.writeText(interviewLink);
