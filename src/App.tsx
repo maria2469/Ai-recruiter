@@ -16,7 +16,7 @@ import GenerateInterviewLink from "./pages/GenerateInterviewLink";
 import TakeInterview from "./pages/TakeInterview";
 import InterviewStart from "./pages/InterviewStart";
 import InterviewFeedback from "./pages/InterviewFeedback";
-
+import AllInterviews from "./pages/AllInterviews";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -35,6 +35,8 @@ const App = () => (
           <Route path="/take-interview/:interviewId" element={<TakeInterview />} />
           <Route path="/interview-start" element={<InterviewStart />} />
           <Route path="/interview-feedback" element={<InterviewFeedback />} />
+          <Route path="/interview-details/:interviewId" element={<InterviewQuestions />} />
+          <Route path="/all-interviews" element={<AllInterviews />} />
 
           {/* Catch-all */}
           <Route path="*" element={<NotFound />} />
