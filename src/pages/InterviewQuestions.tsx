@@ -1,25 +1,18 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import type { Database } from "@/integrations/supabase/types";
 
 interface Question {
     question: string;
     type: string;
 }
 
-interface InterviewData {
-    jobPosition: string;
-    jobDescription: string;
-    duration: string;
-    questionList: Question[];
-    type: string;
-}
-
-const badgeColors = {
+const badgeColors: Record<string, string> = {
     Technical: "bg-purple-700 text-white",
     Behavioral: "bg-green-700 text-white",
     "Problem Solving": "bg-blue-700 text-white",
@@ -30,72 +23,91 @@ const MAX_LENGTH = 160;
 
 const InterviewQuestions = () => {
     const navigate = useNavigate();
+    const location = useLocation();
 
-    const { interviewId } = useParams();
-
-    const [loading, setLoading] = useState(true);
-
-    const [interview, setInterview] =
-        useState<InterviewData | null>(null);
-
-    const [filter, setFilter] = useState("All");
-
-    const [expandedIndex, setExpandedIndex] =
-        useState<number | null>(null);
-
-    useEffect(() => {
-        if (!interviewId) return;
-
-        fetchInterview();
-    }, [interviewId]);
-
-    const fetchInterview = async () => {
-        setLoading(true);
-
-        const { data, error } = await supabase
-            .from("Interviews")
-            .select(
-                "jobPosition, jobDescription, duration, questionList, type"
-            )
-            .eq("interview_id", interviewId)
-            .single();
-
-        if (error || !data) {
-            console.error(error);
-            setLoading(false);
-            return;
-        }
-
-        setInterview({
-            ...data,
-            questionList: data.questionList as Question[],
-        });
-
-        setLoading(false);
+    const state = location.state as {
+        questions: Question[];
+        jobPosition: string;
+        jobDescription: string;
+        duration: string;
+        selectedTypes: string[];
     };
 
-    if (loading) {
+    // 🛑 guard against direct URL access
+    if (!state?.questions) {
         return (
-            <div className="min-h-screen bg-[#0d1117] flex items-center justify-center text-white">
-                Loading Interview...
+            <div className="min-h-screen flex items-center justify-center text-white bg-[#0d1117]">
+                No interview data found. Please create an interview first.
             </div>
         );
     }
 
-    if (!interview) {
-        return (
-            <div className="min-h-screen bg-[#0d1117] flex items-center justify-center text-red-500">
-                Interview not found.
-            </div>
-        );
-    }
+    const {
+        questions,
+        jobPosition,
+        jobDescription,
+        duration,
+        selectedTypes,
+    } = state;
 
-    const questions = interview.questionList || [];
+    const [filter, setFilter] = useState("All");
+    const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+    const [saving, setSaving] = useState(false);
 
     const filteredQuestions =
         filter === "All"
             ? questions
             : questions.filter((q) => q.type === filter);
+
+    const handleConfirm = async () => {
+        try {
+            setSaving(true);
+
+            const {
+                data: { user },
+            } = await supabase.auth.getUser();
+
+            if (!user?.email) {
+                alert("User not authenticated");
+                return;
+            }
+
+            const interviewId = crypto.randomUUID();
+
+            const { error } = await supabase.from("Interviews").insert([
+                {
+                    jobPosition,
+                    jobDescription,
+                    duration,
+                    type: selectedTypes.join(", "),
+                    questionList:
+                        questions as unknown as Database["public"]["Tables"]["Interviews"]["Insert"]["questionList"],
+                    userEmail: user.email,
+                    interview_id: interviewId,
+                },
+            ]);
+
+            if (error) {
+                console.error("Insert error:", error);
+                alert("Failed to save interview.");
+                return;
+            }
+
+            // ✅ success → go to share page
+            navigate("/generate-link", {
+                state: {
+                    interviewId,
+                    jobPosition,
+                    duration,
+                },
+            });
+        } catch (err) {
+            console.error(err);
+            alert("Something went wrong.");
+        } finally {
+            setSaving(false);
+        }
+    };
 
     return (
         <div className="flex flex-col min-h-screen bg-[#0d1117] p-6 md:p-12">
@@ -112,30 +124,12 @@ const InterviewQuestions = () => {
                 <div className="flex items-center gap-3">
                     <img
                         src="/logo.png"
-                        alt="AI Mock Interviewer Logo"
+                        alt="AI Mock Interviewer"
                         className="h-10 w-10 object-contain"
                     />
-
                     <h1 className="text-3xl font-bold text-white">
                         Generated Interview Questions
                     </h1>
-                </div>
-            </div>
-
-            {/* Interview Info */}
-            <div className="mb-8 rounded-xl border border-purple-800/30 bg-[#111827] p-6">
-                <h2 className="text-2xl font-bold text-white mb-2">
-                    {interview.jobPosition}
-                </h2>
-
-                <p className="text-purple-300/70 text-sm mb-3">
-                    {interview.jobDescription}
-                </p>
-
-                <div className="flex gap-4 text-sm text-purple-300">
-                    <span>⏱ {interview.duration}</span>
-
-                    <span>📋 {questions.length} Questions</span>
                 </div>
             </div>
 
@@ -169,9 +163,7 @@ const InterviewQuestions = () => {
             <div className="grid gap-4 md:grid-cols-2">
                 {filteredQuestions.map((q, index) => {
                     const isLong = q.question.length > MAX_LENGTH;
-
-                    const truncated =
-                        q.question.slice(0, MAX_LENGTH) + "...";
+                    const truncated = q.question.slice(0, MAX_LENGTH) + "...";
 
                     return (
                         <motion.div
@@ -185,12 +177,10 @@ const InterviewQuestions = () => {
                                 }`}
                             onClick={() =>
                                 isLong &&
-                                setExpandedIndex(
-                                    expandedIndex === index ? null : index
-                                )
+                                setExpandedIndex(expandedIndex === index ? null : index)
                             }
                         >
-                            <div className="flex justify-between items-start mb-2 gap-4">
+                            <div className="flex justify-between items-start mb-2">
                                 <p className="text-sm font-semibold text-white">
                                     {index + 1}.{" "}
                                     {isLong && expandedIndex !== index
@@ -199,7 +189,8 @@ const InterviewQuestions = () => {
                                 </p>
 
                                 <span
-                                    className={`text-xs px-3 py-1 rounded-full whitespace-nowrap font-medium ${badgeColors[q.type] || "bg-gray-600 text-white"
+                                    className={`text-xs px-3 py-1 rounded-full font-medium ${badgeColors[q.type] ||
+                                        "bg-gray-600 text-white"
                                         }`}
                                 >
                                     {q.type}
@@ -210,21 +201,14 @@ const InterviewQuestions = () => {
                 })}
             </div>
 
-            {/* Footer */}
+            {/* Save Button */}
             <div className="mt-10 flex justify-center">
                 <Button
-                    onClick={() =>
-                        navigate(`/generate-link`, {
-                            state: {
-                                interviewId,
-                                jobPosition: interview.jobPosition,
-                                duration: interview.duration,
-                            },
-                        })
-                    }
+                    onClick={handleConfirm}
+                    disabled={saving}
                     className="bg-purple-700 hover:bg-purple-800 text-white px-8 py-2"
                 >
-                    Open Share Link
+                    {saving ? "Saving..." : "Save & Generate Interview Link"}
                 </Button>
             </div>
         </div>
