@@ -7,11 +7,18 @@ const GenerateInterviewLink = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const { interviewId, jobPosition, duration } = location.state as {
+    const state = location.state as {
         interviewId: string;
         jobPosition: string;
         duration: string;
-    };
+    } | null;
+
+    if (!state) {
+        navigate("/");
+        return null;
+    }
+
+    const { interviewId, jobPosition, duration } = state;
 
     const [copied, setCopied] = useState(false);
     const BASE_URL =
